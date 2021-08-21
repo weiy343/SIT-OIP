@@ -2,25 +2,51 @@ from flask import Flask, request, jsonify, render_template, send_file
 # from picamera import PiCamera
 from time import sleep
 
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/pump")
 def pumping_process():
     print("pumping.")
-    pass
+    return jsonify({
+        "status": "Pumping water",
+        "time": 3,
+    })
 
+@app.route("/wash")
 def washing_process():
     print("washing.")
-    pass
+    return jsonify({
+        "status": "Washing",
+        "time": 3,
+    })
 
+@app.route("/drain")
 def draining_process():
     print("draining.")
-    pass
+    return jsonify({
+        "status": "Draining",
+        "time": 3,
+    })
 
+@app.route("/dry")
 def drying_process():
-    print("draining.")
-    pass
+    print("drying.")
+    return jsonify({
+        "status": "Drying",
+        "time": 3,
+    })
 
+@app.route("/sterilize")
 def sterilizing_process():
     print("sterilizing.")
-    pass
+    return jsonify({
+        "status": "Sterilizing",
+        "time": 3,
+    })
 
 # def take_picture():
 #     camera = PiCamera()
@@ -30,15 +56,12 @@ def sterilizing_process():
 #     camera.stop_preview()
 #     pass
 
-app = Flask(__name__)
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
 @app.route("/start")
 def start():
-    print("hello.")
+    return jsonify({
+        "status": "Pumping water",
+        "time": 10,
+    })
     # take_picture()
 
 if __name__ == "__main__":
