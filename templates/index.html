@@ -1,21 +1,17 @@
 <!doctype html>
 
 <html lang="en">
+
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <title>Washer GUI</title>
 
-        <!-- Compiled and minified CSS -->
+        <!-- CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="../static/styles.css">
-
-        <!-- Compiled and minified JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-        <script src="../static/script.js"></script>
 
         <!-- Google fonts-->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +24,17 @@
             <div class="row-btn">
             </div>
             <form>
-            <a id="main" class="btn-floating btn-large waves-effect waves-light deep-purple accent-4 z-depth-0"></a>
+                <a id="mainButton"
+                    class="btn-floating btn-large waves-effect waves-light deep-purple accent-4 z-depth-0"></a>
             </form>
-            <div class="row-btn-label">Action</div>
-            <div class="row-status">Status</div>
-            <div class="row-timer">Timer</div>
+            <div id="label" class="row-btn-label">Action</div>
+            <div id="status" class="row-status">Status</div>
+            <div id="timer" class="row-timer">Timer</div>
         </div>
+
+        <!-- JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+        <script src="../static/script.js"></script>
     </body>
 </html>

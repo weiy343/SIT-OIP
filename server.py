@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template, send_file
-from picamera import PiCamera
+# from picamera import PiCamera
 from time import sleep
 
 def pumping_process():
@@ -22,13 +22,13 @@ def sterilizing_process():
     print("sterilizing.")
     pass
 
-def take_picture():
-    camera = PiCamera()
-    camera.start_preview()
-    sleep(5)
-    camera.capture('./images/image.jpg')
-    camera.stop_preview()
-    pass
+# def take_picture():
+#     camera = PiCamera()
+#     camera.start_preview()
+#     sleep(5)
+#     camera.capture('./images/image.jpg')
+#     camera.stop_preview()
+#     pass
 
 app = Flask(__name__)
 
@@ -39,7 +39,7 @@ def index():
 @app.route("/start")
 def start():
     print("hello.")
-    take_picture()
+    # take_picture()
 
 if __name__ == "__main__":
-    app.run(threaded=True, port=5000)
+    app.run(debug=True)
