@@ -10,7 +10,7 @@ body {
 }
 
 .row-btn {
-    height: 33vh;
+    height: 12vh;
 }
 
 .btn-floating {
@@ -35,5 +35,5 @@ body {
     font-size: 28px;
     color: #6200ea;
     font-weight: bold;
-    padding-bottom: 15vh;
+    padding-bottom: 5vh;
 }

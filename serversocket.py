@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify, render_template, send_file
-# from picamera import PiCamera
+from picamera import PiCamera
 from time import sleep
 from flask_socketio import SocketIO, send, emit
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
 socketio = SocketIO(app)
+# camera = PiCamera()
 
 @app.route("/")
 def index():
@@ -79,11 +80,12 @@ def sterilizing_process(time, retry):
 def take_picture(time):
     emit("check", "Checking cleanliness...")
 
-    # camera = PiCamera()
-    # camera.start_preview()
-    # sleep(5)
-    # camera.capture('./images/image.jpg')
-    # camera.stop_preview()
+    with PiCamera() as camera:
+
+        camera.start_preview()
+        sleep(5)
+        camera.capture('./images/image.jpg')
+        camera.stop_preview()
 
     socketio.sleep(time)
 
