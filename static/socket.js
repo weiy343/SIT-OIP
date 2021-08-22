@@ -5,6 +5,7 @@ $(document).ready(function() {
 
     // Starts the process
     $("#mainButton").on("click", function() {
+        document.getElementById("mainButton").classList.add("disabled");
         socket.send("Starting process");
     });
 
@@ -21,6 +22,12 @@ $(document).ready(function() {
         console.log(data);
         document.getElementById("status").innerHTML = data;
         document.getElementById("timer").innerHTML = " ";
+    });
+
+    // Receiving from server - reenable button
+    socket.on('complete', function() {
+        document.getElementById("mainButton").classList.remove("disabled");
+        document.getElementById("status").innerHTML = "All syringes are cleaned.";
     });
 })
 

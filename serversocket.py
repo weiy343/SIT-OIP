@@ -19,8 +19,13 @@ def startProcess(msg):
     draining_process(5)
     drying_process(5)
     sterilizing_process(5)
-    take_picture(5)
-
+    isClean = take_picture(5)
+    while(not isClean):
+        drying_process(5)
+        sterilizing_process(5)
+        isClean = take_picture(5)
+        break
+    emit("complete")
 
 def pumping_process(time):
     emit("message", {
@@ -59,7 +64,17 @@ def sterilizing_process(time):
 
 def take_picture(time):
     emit("check", "Checking cleanliness...")
+
+    # camera = PiCamera()
+    # camera.start_preview()
+    # sleep(5)
+    # camera.capture('./images/image.jpg')
+    # camera.stop_preview()
+
     socketio.sleep(time)
+
+    # Depends on camera
+    return False
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
