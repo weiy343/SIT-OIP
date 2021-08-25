@@ -1,55 +1,60 @@
-// Starts countdown when the button is clicked.
-document.getElementById("mainButton").addEventListener("click", async function() {
-    await fetchProcess("/pump");
-    await fetchProcess("/wash");
-    await fetchProcess("/drain");
-    await fetchProcess("/dry");
-    await fetchProcess("/sterilize");
-});
+$(document).ready(function() {
 
-// Fetch function to reduce copy paste
-async function fetchProcess(url){
-    const response = await fetch(`${url}`);
-    const json = await response.json();
-    await statusCountdown(json.time, json.status);
-    return;
-}
+    // Start connection
+    var socket = io.connect("http://127.0.0.1:5000")
+
+    // Starts the process
+    $("#mainButton").on("click", function() {
+        document.getElementById("mainButton").classList.add("disabled");
+        socket.send("Starting process");
+    });
+
+    // Receiving from server - entire washing process
+    socket.on('message', function(data) {
+        console.log("Received.");
+        console.log(data);
+        statusCountdown(data.time, data.status)
+    });
+
+    // Receiving from server - checking clealiness
+    socket.on('check', function(data) {
+        console.log("Received.");
+        console.log(data);
+        document.getElementById("status").innerHTML = data;
+        document.getElementById("timer").innerHTML = " ";
+    });
+
+    // Receiving from server - reenable button
+    socket.on('complete', function() {
+        document.getElementById("mainButton").classList.remove("disabled");
+        document.getElementById("status").innerHTML = "All syringes are cleaned.";
+    });
+})
 
 // Updates status and time left every second
 function statusCountdown(totalSeconds, currentStatus) {
 
-    return new Promise(function(resolve, reject) {
-
-        // Convert to minutes and seconds to string
-        var minutes = (totalSeconds/60) | 0;
-        var seconds = totalSeconds % 60;
+    var countdownTimer = setInterval(updateTime, 1000);
     
-        var countdownTimer = setInterval(updateTime, 1000);
+    document.getElementById("status").innerHTML = currentStatus;
+
+    // Interval starts after 1 second
+    totalSeconds = totalSeconds - 1
+
+    function updateTime() {
         
-        document.getElementById("status").innerHTML = currentStatus;
+        totalSeconds--
 
-        // Can be changed to convert everytime instead for readability
-        function updateTime() {
-    
-            // Completion
-            if (seconds + minutes == 0) {
-                clearInterval(countdownTimer);
-                document.getElementById("timer").innerHTML = "Completed";
-                resolve();
-                return;
-            }
-    
-            // Update time text
-            document.getElementById("timer").innerHTML = timeFormat(minutes, seconds);
-            if (seconds == 0) {
-                seconds = 59;
-                minutes--;
-            }
-            else {
-                seconds--;
-            }
+        if(totalSeconds == 0) {
+            clearInterval(countdownTimer);
+            document.getElementById("timer").innerHTML = "Completed";
         }
-    });
+        else {
+            minutes = (totalSeconds/60) | 0;
+            seconds = totalSeconds % 60;
+            document.getElementById("timer").innerHTML = "Estimated time: " + timeFormat(totalSeconds);
+        }
+    }
 }
 
 // Adds a prefix 0 if less than 10
@@ -61,7 +66,10 @@ function timeToString(time) {
 }
 
 // Format to mm:ss
-function timeFormat(minutes, seconds) {
+function timeFormat(totalSeconds) {
+    var minutes = (totalSeconds/60) | 0;
+    var seconds = totalSeconds % 60;
+
     if (minutes < 10) {
         minutes = `0${minutes}`
     }
