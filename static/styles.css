@@ -1,0 +1,39 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.center-container {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100vh;
+}
+
+.row-btn {
+    height: 12vh;
+}
+
+.btn-floating {
+    height: 192px !important;
+    width: 192px !important;
+}
+
+.row-btn-label {
+    padding-top: 5vh;
+    font-size: 24px;
+    padding-bottom: 8vh;
+}
+
+.row-status {
+    font-size: 28px;
+    color: #6200ea;
+    font-weight: bold;
+    padding-bottom: 3vh;
+}
+
+.row-timer {
+    font-size: 28px;
+    color: #6200ea;
+    font-weight: bold;
+    padding-bottom: 5vh;
+}
