@@ -1,12 +1,13 @@
-import time
+
+from time import sleep
 import serial
 import sys
 
-arduino = serial.Serial("/dev/ttyACM0", 9600, timeout=10)
+arduino = serial.Serial("/dev/ttyACM0", 9600, timeout=None)
 arduino.flush()
 
 # For port to open
-time.sleep(1)
+sleep(1)
 
 # 0 - 0 degrees, open drain
 # 1 - 90 degrees, close drain
@@ -32,53 +33,66 @@ time.sleep(1)
 print("Checking infrared")
 arduino.write(b'3')
 line = arduino.readline().decode('utf-8').strip()
+print(line)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
+print("before i")
 # 0 is open
 # 1 is close
-if line is 0:
-  print("Compartment is close")
+if line is "0":
+  print("Compartment is open")
   sys.exit()
+
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 print("Starting washing process")
 # 1 close drain
 print("Closing drain")
 arduino.write(b'1')
-# wait
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # 4 pump water
 print("Pumping water")
 arduino.write(b'4')
-# wait
+sleep(1)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # 5 wash LED
 print("Washing")
 arduino.write(b'5')
-# wait
+sleep(1)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # 0 open drain
 print("Opening drain")
 arduino.write(b'0')
-# wait
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # 1 close drain
 print("Closing drain")
 arduino.write(b'1')
-# wait
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # 4 pump water
 print("Pumping water")
 arduino.write(b'4')
-# wait
+sleep(1)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
@@ -87,38 +101,55 @@ print(line)
 # 6 start fan & heating coil
 print("Turning fan up")
 arduino.write(b'6')
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
+print(line)
 # wait
 
 # 7 heat up
 #while loop readline to heat level
 print("Heating up")
 arduino.write(b'7')
+sleep(1)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # temperature feedback
-while float(line) < 40:
+while float(line) < 80:
+  sleep(1)
+  arduino.write(b'7')
+  line = arduino.readline().decode('utf-8').strip()
+  print(line)
   line = arduino.readline().decode('utf-8').strip()
   print(line)
 
 # complete
+sleep(5)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # 0 open drain
 print("Opening drain")
 arduino.write(b'0')
-# wait
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # complete
 # off fan and heating coil
 arduino.write(b'9')
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
-arduino.write(b'10')
+arduino.write(b'2')
+sleep(1)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
+sleep(1)
+arduino.write(b'8')
+sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
