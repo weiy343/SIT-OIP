@@ -32,12 +32,19 @@ time.sleep(1)
 print("Checking infrared")
 arduino.write(b'3')
 line = arduino.readline().decode('utf-8').strip()
+print(line)
+
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 # 0 is open
 # 1 is close
 if line is 0:
   print("Compartment is close")
   sys.exit()
+
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 print("Starting washing process")
 # 1 close drain
@@ -53,11 +60,15 @@ arduino.write(b'4')
 # wait
 line = arduino.readline().decode('utf-8').strip()
 print(line)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 # 5 wash LED
 print("Washing")
 arduino.write(b'5')
 # wait
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
@@ -81,6 +92,8 @@ arduino.write(b'4')
 # wait
 line = arduino.readline().decode('utf-8').strip()
 print(line)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 # Reheat + sterilize
 
@@ -94,6 +107,9 @@ line = arduino.readline().decode('utf-8').strip()
 #while loop readline to heat level
 print("Heating up")
 arduino.write(b'7')
+line = arduino.readline().decode('utf-8').strip()
+print(line)
+
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
