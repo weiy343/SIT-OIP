@@ -34,6 +34,7 @@ print("Checking infrared")
 arduino.write(b'3')
 line = arduino.readline().decode('utf-8').strip()
 print(line)
+
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
@@ -63,11 +64,15 @@ line = arduino.readline().decode('utf-8').strip()
 print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 # 5 wash LED
 print("Washing")
 arduino.write(b'5')
 sleep(1)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 line = arduino.readline().decode('utf-8').strip()
@@ -95,6 +100,8 @@ line = arduino.readline().decode('utf-8').strip()
 print(line)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
 
 # Reheat + sterilize
 
@@ -113,6 +120,9 @@ arduino.write(b'7')
 sleep(1)
 line = arduino.readline().decode('utf-8').strip()
 print(line)
+line = arduino.readline().decode('utf-8').strip()
+print(line)
+
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
