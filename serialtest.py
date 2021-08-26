@@ -16,6 +16,16 @@ time.sleep(1)
 # 5 - washing, ultrasonic
 # 6 - fan
 # 7 - heating coil
+# 8 - LED strip
+# 9 - off fan
+# 10 - off heating
+
+# def arduino_comm(msg):
+#   arduino.write(msg.encode('utf-8'))
+#   reply = arduino.readline().decode('utf-8').strip()
+#   return reply
+
+# arduino_comm("3")
 
 # Process
 # 3 check infra
@@ -104,6 +114,11 @@ line = arduino.readline().decode('utf-8').strip()
 print(line)
 
 # complete
+# off fan and heating coil
+arduino.write(b'9')
+line = arduino.readline().decode('utf-8').strip()
+print(line)
+arduino.write(b'10')
 line = arduino.readline().decode('utf-8').strip()
 print(line)
 
