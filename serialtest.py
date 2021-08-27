@@ -19,37 +19,48 @@ sleep(1)
 
 # Serial functions
 def sendToArduino(command, timer):
-  arduino.write(command.encode('utf-8'))
-  arduino.write(timer.encode('utf-8'))
+  arduino.write(repr(command).encode('utf-8'))
+  arduino.write(repr(timer).encode('utf-8'))
 
 # Entire washing process including pumping, washing and draining
 def wash(timer):
   sendToArduino(0, timer)
   isOpen = arduino.readline().decode('utf-8').strip()
-  if isOpen is "0":
+  print("THIS IS OPEN: ", isOpen)
+  if isOpen is "1":
+    print("open")
     emit("coverWarning", "Please close the cover.")
     return
-  
-  # Pump
-  emit("message", {
-      "status": "Pumping water in progress...",
-      "time": timer
-  })
+  else:
+    # Pump
+    emit("message", {
+        "status": "Pumping water in progress...",
+        "time": timer
+    })
+
+  socketio.sleep(1)
   pump = arduino.readline().decode('utf-8').strip()
-  
+  print("pumping: ", pump)
+
   # Wash
   emit("message", {
       "status": "Washing in progress...",
       "time": timer
   })
+
+  socketio.sleep(1)
   wash = arduino.readline().decode('utf-8').strip()
+  print("washing: ", wash)
   
   # Drain
   emit("message", {
       "status": "Draining water in progress...",
       "time": timer
   })
+
+  socketio.sleep(1)
   drain = arduino.readline().decode('utf-8').strip()
+  print("draining: ", drain)  
   return
 
 # Entire sterilizing process including pumping, heating, sterilizing and draining
@@ -60,7 +71,10 @@ def sterilize(timer):
       "status": "Pumping water in progress...",
       "time": timer
   })
+
+  socketio.sleep(1)
   pump = arduino.readline().decode('utf-8').strip()
+  print("pumping: ", pump)
 
   # Sterilize
   checkTemp()
@@ -68,14 +82,20 @@ def sterilize(timer):
       "status": "Sterilizing in progress...",
       "time": timer
   })
+
+  socketio.sleep(1)
   sterilize = arduino.readline().decode('utf-8').strip()
+  print("Sterilizing: ", sterilize)
 
   # Drain
   emit("message", {
-      "status": "Sterilizing in progress...",
+      "status": "Draining in progress...",
       "time": timer
   })
+
+  socketio.sleep(1)
   drain = arduino.readline().decode('utf-8').strip()
+  print("draining: ", drain)
 
 # Entire drying process including heating and drying
 def dry(timer, retry):
@@ -92,7 +112,9 @@ def dry(timer, retry):
       "status": status,
       "time": timer
   })
+  socketio.sleep(1)
   dry = arduino.readline().decode('utf-8').strip()
+  print("Drying: ", dry)
 
 # Camera
 def checkDry(timer):
@@ -113,12 +135,14 @@ def checkDry(timer):
 # Heating temperature check
 def checkTemp():
   temp = arduino.readline().decode('utf-8').strip()
-  while float(temp) < 70:
-    temp = arduino.readline().decode('utf-8').strip()
+  print("temp: ", temp)
+  while float(temp) < 78:
     emit("heating", {
       "status": "Heating in progress...",
       "temp": temp
     })
+    socketio.sleep(1)
+    temp = arduino.readline().decode('utf-8').strip()
 
 # Web APIs
 @app.route("/")
@@ -143,3 +167,6 @@ def startProcess():
         # Simulation 1 loop
         break
     emit("complete")
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True)
