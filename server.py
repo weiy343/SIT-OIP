@@ -13,8 +13,7 @@ def index():
     return render_template("index.html")
 
 @socketio.on("message")
-def startProcess(msg):
-    print(msg)
+def startProcess():
     iterations = 0
     pumping_process(5)
     washing_process(5)

@@ -36,6 +36,7 @@ $(document).ready(function() {
     socket.on('coverWarning', function(data) {
         console.log("Received.");
         console.log(data);
+        document.getElementById("mainButton").classList.remove("disabled");
         document.getElementById("status").innerHTML = data;
         document.getElementById("timer").innerHTML = " ";
     });
