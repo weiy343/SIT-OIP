@@ -6,7 +6,7 @@ $(document).ready(function() {
     // Starts the process
     $("#mainButton").on("click", function() {
         document.getElementById("mainButton").classList.add("disabled");
-        socket.send("Starting process");
+        socket.send();
     });
 
     // Receiving from server - entire washing process
@@ -16,8 +16,24 @@ $(document).ready(function() {
         statusCountdown(data.time, data.status)
     });
 
-    // Receiving from server - checking clealiness
+    // Receiving from server - checking cleanliness
     socket.on('check', function(data) {
+        console.log("Received.");
+        console.log(data);
+        document.getElementById("status").innerHTML = data;
+        document.getElementById("timer").innerHTML = " ";
+    });
+
+    // Receiving from server - checking heat
+    socket.on('heating', function(data) {
+        console.log("Received.");
+        console.log(data);
+        document.getElementById("status").innerHTML = data.status;
+        document.getElementById("timer").innerHTML = "Current temperature: " + data.temp;
+    });
+
+    // Receiving from server - checking cover if closed
+    socket.on('coverWarning', function(data) {
         console.log("Received.");
         console.log(data);
         document.getElementById("status").innerHTML = data;

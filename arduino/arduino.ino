@@ -6,8 +6,8 @@
 Servo servo;
 #define servoPin 49
 
-int angle =0;    // initial angle  for servo (beteen 1 and 179)
-int angleStep =10;
+int angle = 90;   // initial angle  for servo (beteen 1 and 179)
+int angleStep = 10;
 const int minAngle = 0;
 const int maxAngle = 90;
 
@@ -32,10 +32,10 @@ int LED3 = 6;       //Red Fan
 int LED4 = 7;      //Red Heating
 int LED5 = 8;      //Yellow LED Strip
 
-
 void setup() {
   // Servo setup
   servo.attach(servoPin);
+  servo.write(angle);
   
   // IR setup
   pinMode(IRPin, INPUT);
@@ -46,6 +46,9 @@ void setup() {
   // Simulated componets setup
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(LED5, OUTPUT);
   
   Serial.begin(9600);
 }
@@ -53,56 +56,38 @@ void setup() {
 void loop() {
   if (Serial.available() > 0)
   {
-    char data = Serial.read();
+    char command = Serial.read();
+    int timer = Serial.parseInt();
+    timer = timer * 1000;
 
-    // Open Drainage Port
-    if (data == '0'){
-      servo.write(0);
+    // Pump & Wash
+    if (command == '0'){
+      int isOpen = IRSensor();
+      if (isOpen){
+        Serial.println(isOpen);
+        return;
+      }
+      waterPump(timer); // returns complete
+      washing(timer); // returns complete
+      drain(timer); // returns complete
     }
 
-    // Close Drainage Port
-    else if (data == '1'){
-      servo.write(90);
+    // Sterilize
+    else if (command == '1'){
+      waterPump(timer); // Returns complete
+      heatedFan(timer); // returns complete
+      drain(timer); // returns complete
     }
 
-    // Checking Cover Status
-    else if (data == '2'){
-      IRSensor();
+    // Dry
+    else if (command == '2'){
+      servo.write(90); // ensure open
+      heatedFan(timer); // returns complete
     }
-
-    // Water Pump Status
-    else if (data == '3'){
-      WaterPump();
-    }
-
-    // Ultrasonic cleaner
-    else if (data == '4'){
-      Washing();
-    }
-
-    // Fan Control On
-    else if (data == '5'){
-      fans();
-    }
-
-    // Fan Control Off
-    else if (data == '6'){
-      fanOff();
-    }
-
-    // Heating Element On
-    else if (data == '7'){
-      heating();
-    }
-
-    // Heating Element Off
-    else if (data == '8'){
-      heatingOff();
-    }
-
-    // LED Strip
-    else if (data == '9'){
-      LEDStrip();
+    
+    // LED check
+    else if (command == '3'){
+      LEDStrip(timer);
     }
   }
 }
@@ -136,36 +121,54 @@ void DHTSensor()
   Serial.println(F("C "));
 }
 
-void IRSensor()
+int IRSensor()
 {
   distance_cm = mySensor.distance();
   
   // Closed
   if (distance_cm <= 8)
   {
-    Serial.println(1);
+    return 0;
   }
 
   // Opened
   else
   {
-    Serial.println(0);
+    return 1;
   }
 }
 
-void WaterPump()
+void waterPump(int timer)
 {
+  servo.write(90); // ensure close
   digitalWrite(LED1, HIGH);
-  delay(10000);
+  delay(timer);
   digitalWrite(LED1, LOW);
   Serial.println("Done.");
 }
 
-void Washing()
+void washing(int timer)
 {
   digitalWrite(LED2, HIGH);
-  delay(10000);
+  delay(timer);
   digitalWrite(LED2, LOW);
+  Serial.println("Done.");
+}
+
+void drain(int timer)
+{
+  servo.write(0);
+  delay(timer);
+  servo.write(90);
+  Serial.println("Done.");
+}
+
+void heatedFan(int timer){
+  fans();
+  heating(); // Returns temp
+  delay(timer);
+  fanOff();
+  heatingOff();
   Serial.println("Done.");
 }
 
@@ -176,10 +179,8 @@ void fans()
 
 void heating()
 {
-  delay(500);
-
   // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
+  float t = dht.readHumidity();
 
   // Check if any reads failed and exit early (to try again).
   if (isnan(t))
@@ -188,22 +189,21 @@ void heating()
     return;
   }
 
-  Serial.println(t);
-  
-  if (t < 40){
+  while(t < 70){
+    Serial.println(t);
     digitalWrite(LED4, HIGH);
-    delay(1000);
+    delay(500);
     digitalWrite(LED4, LOW);
+    t = dht.readHumidity();
   }
-  else {
-    digitalWrite(LED4, HIGH);
-  }
+  Serial.println(t);
+  digitalWrite(LED4, HIGH);
 }
 
-void LEDStrip()
+void LEDStrip(int timer)
 {
   digitalWrite(LED5, HIGH);
-  delay(10000);
+  delay(timer);
   digitalWrite(LED5, LOW);
 }
 

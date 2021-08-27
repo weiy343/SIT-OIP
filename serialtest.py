@@ -1,124 +1,145 @@
-
+from flask import Flask, request, jsonify, render_template, send_file
+from picamera import PiCamera
 from time import sleep
+from flask_socketio import SocketIO, send, emit
 import serial
 import sys
 
+# WebSocket
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'supersecretkey'
+socketio = SocketIO(app)
+
+# Serial communication
 arduino = serial.Serial("/dev/ttyACM0", 9600, timeout=None)
 arduino.flush()
 
 # For port to open
 sleep(1)
 
-# 0 - open drain
-# 1 - close drain
-# 2 - cover
-# 3 - pump
-# 4 - wash
-# 5 - on fan
-# 6 - off fan
-# 7 - on heat
-# 8 - off heat
-# 9 - led
+# Serial functions
+def sendToArduino(command, timer):
+  arduino.write(command.encode('utf-8'))
+  arduino.write(timer.encode('utf-8'))
 
-# def arduino_comm(msg):
-#   arduino.write(msg.encode('utf-8'))
-#   reply = arduino.readline().decode('utf-8').strip()
-#   return reply
+# Entire washing process including pumping, washing and draining
+def wash(timer):
+  sendToArduino(0, timer)
+  isOpen = arduino.readline().decode('utf-8').strip()
+  if isOpen is "0":
+    emit("coverWarning", "Please close the cover.")
+    return
+  
+  # Pump
+  emit("message", {
+      "status": "Pumping water in progress...",
+      "time": timer
+  })
+  pump = arduino.readline().decode('utf-8').strip()
+  
+  # Wash
+  emit("message", {
+      "status": "Washing in progress...",
+      "time": timer
+  })
+  wash = arduino.readline().decode('utf-8').strip()
+  
+  # Drain
+  emit("message", {
+      "status": "Draining water in progress...",
+      "time": timer
+  })
+  drain = arduino.readline().decode('utf-8').strip()
+  return
 
-# arduino_comm("3")
+# Entire sterilizing process including pumping, heating, sterilizing and draining
+def sterilize(timer):
+  sendToArduino(1, timer)
+  # Pump
+  emit("message", {
+      "status": "Pumping water in progress...",
+      "time": timer
+  })
+  pump = arduino.readline().decode('utf-8').strip()
 
-def countdown(seconds):
-  for x in range(seconds, 0, -1):
-    print(x)
-    sleep(1)
+  # Sterilize
+  checkTemp()
+  emit("message", {
+      "status": "Sterilizing in progress...",
+      "time": timer
+  })
+  sterilize = arduino.readline().decode('utf-8').strip()
 
-# Process
-# 3 check infra
-print("Checking infrared")
-arduino.write(b'2')
+  # Drain
+  emit("message", {
+      "status": "Sterilizing in progress...",
+      "time": timer
+  })
+  drain = arduino.readline().decode('utf-8').strip()
 
-line = arduino.readline().decode('utf-8').strip()
+# Entire drying process including heating and drying
+def dry(timer, retry):
+  sendToArduino(2, timer)
 
-# 0 is open
-# 1 is close
-if line is "0":
-  print("Compartment is open")
-  sys.exit()
+  status = "Drying in progress..."
 
-print("Starting washing process")
+  if retry > 0:
+      status = f"Drying ({retry}) in progress..."
+  
+  # Dry
+  checkTemp()
+  emit("message", {
+      "status": status,
+      "time": timer
+  })
+  dry = arduino.readline().decode('utf-8').strip()
 
-# 1 close drain
-print("Closing drain")
-arduino.write(b'1')
+# Camera
+def checkDry(timer):
+  emit("check", "Checking dryness...")
+  sendToArduino(3, timer)
+  with PiCamera() as camera:
 
-# 3 pump water
-print("Pumping water")
-arduino.write(b'3')
+      camera.start_preview()
+      sleep(timer)
+      camera.capture('./images/image.jpg')
+      camera.stop_preview()
+      
+  # Processing here
 
-# wait to finish
-line = arduino.readline().decode('utf-8').strip()
-print(line)
+  # Depends on camera
+  return False
 
-# 4 wash LED
-print("Washing")
-arduino.write(b'4')
+# Heating temperature check
+def checkTemp():
+  temp = arduino.readline().decode('utf-8').strip()
+  while float(temp) < 70:
+    temp = arduino.readline().decode('utf-8').strip()
+    emit("heating", {
+      "status": "Heating in progress...",
+      "temp": temp
+    })
 
-# wait to finish
-line = arduino.readline().decode('utf-8').strip()
-print(line)
+# Web APIs
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-# 0 open drain
-print("Opening drain")
-arduino.write(b'0')
+@socketio.on("message")
+def startProcess():
 
-# 1 close drain
-print("Closing drain")
-arduino.write(b'1')
+    iterations = 0
 
-# Sterilizing process
-# 3 pump water
-print("Pumping water")
-arduino.write(b'3')
-# wait to finish
-line = arduino.readline().decode('utf-8').strip()
-print(line)
+    wash(10)
+    sterilize(10)
+    dry(10, iterations)
 
-# 5 start fan
-print("Turning fan up")
-arduino.write(b'5')
+    isDry = checkDry(5)
+    while(not isDry):
+        iterations =+ 1
+        dry(10, iterations)
+        isDry = checkDry(5)
 
-# 7 heat up
-#while loop readline to heat level
-print("Heating up")
-arduino.write(b'7')
-
-line = arduino.readline().decode('utf-8').strip()
-print(line)
-
-# temperature feedback
-while float(line) < 80:
-
-  arduino.write(b'7')
-  line = arduino.readline().decode('utf-8').strip()
-  print(line)
-
-# Complete
-print("Heated. Sterilizing...")
-
-countdown(10)
-
-# 0 open drain
-print("Opening drain")
-arduino.write(b'0')
-
-# complete
-# off fan and heating coil
-print("Off fan")
-arduino.write(b'6')
-
-print("Off Heat")
-arduino.write(b'8')
-
-print("Led check")
-arduino.write(b'9')
-# check cam
+        # Simulation 1 loop
+        break
+    emit("complete")
