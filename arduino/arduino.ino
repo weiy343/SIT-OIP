@@ -63,8 +63,8 @@ void loop() {
     // Pump & Wash
     if (command == '0'){
       int isOpen = IRSensor();
+      Serial.println(isOpen);
       if (isOpen){
-        Serial.println(isOpen);
         return;
       }
       waterPump(timer); // returns complete
@@ -144,7 +144,7 @@ void waterPump(int timer)
   digitalWrite(LED1, HIGH);
   delay(timer);
   digitalWrite(LED1, LOW);
-  Serial.println("Done.");
+  Serial.println("Pump Done.");
 }
 
 void washing(int timer)
@@ -152,7 +152,7 @@ void washing(int timer)
   digitalWrite(LED2, HIGH);
   delay(timer);
   digitalWrite(LED2, LOW);
-  Serial.println("Done.");
+  Serial.println("Wash Done.");
 }
 
 void drain(int timer)
@@ -160,7 +160,7 @@ void drain(int timer)
   servo.write(0);
   delay(timer);
   servo.write(90);
-  Serial.println("Done.");
+  Serial.println("Drain Done.");
 }
 
 void heatedFan(int timer){
@@ -169,7 +169,7 @@ void heatedFan(int timer){
   delay(timer);
   fanOff();
   heatingOff();
-  Serial.println("Done.");
+  Serial.println("Dry Done.");
 }
 
 void fans()
@@ -189,11 +189,12 @@ void heating()
     return;
   }
 
-  while(t < 70){
+  while(t < 78){
     Serial.println(t);
     digitalWrite(LED4, HIGH);
     delay(500);
     digitalWrite(LED4, LOW);
+    delay(500);
     t = dht.readHumidity();
   }
   Serial.println(t);
