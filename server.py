@@ -127,7 +127,7 @@ def checkDry(timer):
 def checkTemp():
   temp = arduino.readline().decode('utf-8').strip()
   print("temp: ", temp)
-  while float(temp) < 78:
+  while float(temp) < 70:
     emit("heating", {
       "status": "Heating in progress...",
       "temp": temp
@@ -147,7 +147,6 @@ def startProcess():
 
     sendToArduino(0, 10)
     isOpen = arduino.readline().decode('utf-8').strip()
-    print("THIS IS OPEN: ", isOpen)
     if isOpen is "1":
       print("open")
       emit("coverWarning", "Please close the cover.")

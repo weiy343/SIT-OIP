@@ -74,14 +74,6 @@ function statusCountdown(totalSeconds, currentStatus) {
     }
 }
 
-// Adds a prefix 0 if less than 10
-function timeToString(time) {
-    if (time < 10) {
-        return `0${time}`
-    }
-    return `${time}`
-}
-
 // Format to mm:ss
 function timeFormat(totalSeconds) {
     var minutes = (totalSeconds/60) | 0;

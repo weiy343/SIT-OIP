@@ -189,7 +189,7 @@ void heating()
     return;
   }
 
-  while(t < 78){
+  while(t < 70){
     Serial.println(t);
     digitalWrite(LED4, HIGH);
     delay(500);
