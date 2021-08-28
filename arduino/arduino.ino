@@ -81,7 +81,7 @@ void loop() {
 
     // Dry
     else if (command == '2'){
-      servo.write(90); // ensure open
+      servo.write(0); // ensure open
       heatedFan(timer); // returns complete
     }
     
