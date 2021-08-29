@@ -24,19 +24,10 @@ def sendToArduino(command, timer):
 
 # Entire washing process including pumping, washing and draining
 def wash(timer):
-  sendToArduino(0, timer)
-  isOpen = arduino.readline().decode('utf-8').strip()
-  print("THIS IS OPEN: ", isOpen)
-  if isOpen is "1":
-    print("open")
-    emit("coverWarning", "Please close the cover.")
-    return
-  else:
-    # Pump
-    emit("message", {
-        "status": "Pumping water in progress...",
-        "time": timer
-    })
+  emit("message", {
+      "status": "Pumping water in progress...",
+      "time": timer
+  })
 
   socketio.sleep(1)
   pump = arduino.readline().decode('utf-8').strip()
@@ -136,7 +127,7 @@ def checkDry(timer):
 def checkTemp():
   temp = arduino.readline().decode('utf-8').strip()
   print("temp: ", temp)
-  while float(temp) < 78:
+  while float(temp) < 70:
     emit("heating", {
       "status": "Heating in progress...",
       "temp": temp
@@ -153,6 +144,13 @@ def index():
 def startProcess():
 
     iterations = 0
+
+    sendToArduino(0, 10)
+    isOpen = arduino.readline().decode('utf-8').strip()
+    if isOpen is "1":
+      print("open")
+      emit("coverWarning", "Please close the cover.")
+      return
 
     wash(10)
     sterilize(10)

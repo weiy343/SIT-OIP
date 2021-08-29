@@ -81,7 +81,7 @@ void loop() {
 
     // Dry
     else if (command == '2'){
-      servo.write(90); // ensure open
+      servo.write(0); // ensure open
       heatedFan(timer); // returns complete
     }
     
@@ -189,7 +189,7 @@ void heating()
     return;
   }
 
-  while(t < 78){
+  while(t < 70){
     Serial.println(t);
     digitalWrite(LED4, HIGH);
     delay(500);
