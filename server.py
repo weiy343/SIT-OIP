@@ -127,7 +127,7 @@ def checkDry(timer):
       camera.capture('./images/image.jpg')
       camera.stop_preview()
   
-  redry = object_detection.run_odt(
+  redry = object_detection.run_odt_and_draw_results(
     './images/image.jpg',
     interpreter,
     threshold=0.2
@@ -164,9 +164,9 @@ def startProcess():
       emit("coverWarning", "Please close the cover.")
       return
 
-    wash(10)
-    sterilize(10)
-    dry(10, iterations)
+    #wash(10)
+    #sterilize(10)
+    #dry(10, iterations)
 
     isDry = checkDry(5)
     while(not isDry):
