@@ -5,7 +5,6 @@ import re
 import os
 
 import numpy as np
-import tensorflow as tf
 
 from PIL import Image
 
@@ -24,12 +23,10 @@ def load_labels(path):
 
 def preprocess_image(image_path, input_size):
   """Preprocess the input image to feed to the TFLite model"""
-  img = tf.io.read_file(image_path)
-  img = tf.io.decode_image(img, channels=3)
-  img = tf.image.convert_image_dtype(img, tf.uint8)
-  original_image = img
-  resized_img = tf.image.resize(img, input_size)
-  resized_img = resized_img[tf.newaxis, :]
+  img = Image.read(image_path)
+  original_image = img.convert('RGB')
+  resized_img = original_image.resize(input_size, Image.ANTIALIAS)
+  
   return resized_img, original_image
 
 

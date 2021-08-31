@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, render_template
 from picamera import PiCamera
 from time import sleep
-from flask_socketio import SocketIO, send, emit
-from tflite_runtime.interpreter import load_delegate
+from flask_socketio import SocketIO, emit
+from tflite_runtime.interpreter import load_delegate, Interpreter
 import serial
 import sys
 
@@ -11,9 +11,8 @@ import tensorflow as tf
 
 # Loading model as interpreter with coral accelerator TPU
 model_path = 'model.tflite'
-interpreter = tf.lite.Interpreter(
-  model_path=model_path,
-  experimental_delegates=[load_delegate('libedgetpu.so.1.0')]
+interpreter = Interpreter(
+  model_path=model_path
   )
 interpreter.allocate_tensors()
 
