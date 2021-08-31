@@ -3,3 +3,6 @@ Flask_SocketIO==5.1.1
 picamera==1.13
 pyserial==3.5
 eventlet==0.31.1
+numpy
+Pillow
+tensorflow
