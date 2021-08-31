@@ -164,13 +164,13 @@ def startProcess():
       emit("coverWarning", "Please close the cover.")
       return
 
-    #wash(10)
-    #sterilize(10)
-    #dry(10, iterations)
+    wash(10)
+    sterilize(10)
+    dry(10, iterations)
 
     isDry = checkDry(5)
     while(not isDry):
-        iterations =+ 1
+        iterations = iterations + 1
         dry(10, iterations)
         isDry = checkDry(5)
     emit("complete")
