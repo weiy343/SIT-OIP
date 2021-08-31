@@ -120,7 +120,7 @@ def dry(timer, retry):
 def checkDry(timer):
   emit("check", "Checking dryness...")
   sendToArduino(3, timer)
-  with PiCamera() as camera:
+  with PiCamera(resolution=(640, 480)) as camera:
 
       camera.start_preview()
       sleep(timer)
@@ -130,7 +130,7 @@ def checkDry(timer):
   redry = object_detection.run_odt_and_draw_results(
     './images/image.jpg',
     interpreter,
-    threshold=0.2
+    threshold=0.1
   )
 
   return redry
