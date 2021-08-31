@@ -2,8 +2,20 @@ from flask import Flask, request, jsonify, render_template, send_file
 from picamera import PiCamera
 from time import sleep
 from flask_socketio import SocketIO, send, emit
+from tflite_runtime.interpreter import load_delegate
 import serial
 import sys
+
+import object_detection
+import tensorflow as tf
+
+# Loading model as interpreter with coral accelerator TPU
+model_path = 'model.tflite'
+interpreter = tf.lite.Interpreter(
+  model_path=model_path,
+  experimental_delegates=[load_delegate('libedgetpu.so.1.0')]
+  )
+interpreter.allocate_tensors()
 
 # WebSocket
 app = Flask(__name__)
@@ -126,11 +138,14 @@ def checkDry(timer):
       sleep(timer)
       camera.capture('./images/image.jpg')
       camera.stop_preview()
-      
-  # Processing here
+  
+  redry = object_detection.run_odt(
+    './images/image.jpg',
+    interpreter,
+    threshold=0.2
+  )
 
-  # Depends on camera
-  return False
+  return redry
 
 # Heating temperature check
 def checkTemp():
@@ -163,9 +178,6 @@ def startProcess():
         iterations =+ 1
         dry(10, iterations)
         isDry = checkDry(5)
-
-        # Simulation 1 loop
-        break
     emit("complete")
 
 if __name__ == "__main__":
