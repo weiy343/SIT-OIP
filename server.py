@@ -168,11 +168,11 @@ def startProcess():
     sterilize(10)
     dry(10, iterations)
 
-    isDry = checkDry(5)
-    while(not isDry):
+    isNotDry = checkDry(5)
+    while(isNotDry):
         iterations = iterations + 1
         dry(10, iterations)
-        isDry = checkDry(5)
+        isNotDry = checkDry(5)
     emit("complete")
 
 if __name__ == "__main__":
