@@ -23,10 +23,11 @@ def load_labels(path):
 
 def preprocess_image(image_path, input_size):
   """Preprocess the input image to feed to the TFLite model"""
-  img = Image.read(image_path)
-  original_image = img.convert('RGB')
+  img = Image.open(image_path)
+  img = img.convert('RGB')
+  original_image = np.asarray(img, dtype="int32")
   resized_img = original_image.resize(input_size, Image.ANTIALIAS)
-  
+
   return resized_img, original_image
 
 

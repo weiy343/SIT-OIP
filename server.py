@@ -4,10 +4,8 @@ from time import sleep
 from flask_socketio import SocketIO, emit
 from tflite_runtime.interpreter import load_delegate, Interpreter
 import serial
-import sys
 
 import object_detection
-import tensorflow as tf
 
 # Loading model as interpreter with coral accelerator TPU
 model_path = 'model.tflite'
