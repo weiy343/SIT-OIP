@@ -1,19 +1,16 @@
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, render_template
 from picamera import PiCamera
 from time import sleep
-from flask_socketio import SocketIO, send, emit
-from tflite_runtime.interpreter import load_delegate
+from flask_socketio import SocketIO, emit
+from tflite_runtime.interpreter import load_delegate, Interpreter
 import serial
-import sys
 
 import object_detection
-import tensorflow as tf
 
 # Loading model as interpreter with coral accelerator TPU
 model_path = 'model.tflite'
-interpreter = tf.lite.Interpreter(
-  model_path=model_path,
-  experimental_delegates=[load_delegate('libedgetpu.so.1.0')]
+interpreter = Interpreter(
+  model_path=model_path
   )
 interpreter.allocate_tensors()
 
@@ -123,17 +120,17 @@ def dry(timer, retry):
 def checkDry(timer):
   emit("check", "Checking dryness...")
   sendToArduino(3, timer)
-  with PiCamera() as camera:
+  with PiCamera(resolution=(640, 480)) as camera:
 
       camera.start_preview()
       sleep(timer)
       camera.capture('./images/image.jpg')
       camera.stop_preview()
   
-  redry = object_detection.run_odt(
+  redry = object_detection.run_odt_and_draw_results(
     './images/image.jpg',
     interpreter,
-    threshold=0.2
+    threshold=0.1
   )
 
   return redry
@@ -171,11 +168,11 @@ def startProcess():
     sterilize(10)
     dry(10, iterations)
 
-    isDry = checkDry(5)
-    while(not isDry):
-        iterations =+ 1
+    isNotDry = checkDry(5)
+    while(isNotDry):
+        iterations = iterations + 1
         dry(10, iterations)
-        isDry = checkDry(5)
+        isNotDry = checkDry(5)
     emit("complete")
 
 if __name__ == "__main__":

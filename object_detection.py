@@ -5,7 +5,6 @@ import re
 import os
 
 import numpy as np
-import tensorflow as tf
 
 from PIL import Image
 
@@ -24,12 +23,11 @@ def load_labels(path):
 
 def preprocess_image(image_path, input_size):
   """Preprocess the input image to feed to the TFLite model"""
-  img = tf.io.read_file(image_path)
-  img = tf.io.decode_image(img, channels=3)
-  img = tf.image.convert_image_dtype(img, tf.uint8)
-  original_image = img
-  resized_img = tf.image.resize(img, input_size)
-  resized_img = resized_img[tf.newaxis, :]
+  img = Image.open(image_path)
+  img = img.convert('RGB')
+  original_image = np.asarray(img, dtype="int32")
+  resized_img = img.resize(input_size, Image.ANTIALIAS)
+
   return resized_img, original_image
 
 
@@ -85,7 +83,7 @@ def run_odt_and_draw_results(image_path, interpreter, threshold=0.5):
   results = detect_objects(interpreter, preprocessed_image, threshold=threshold)
 
   # Plot the detection results on the input image
-  original_image_np = original_image.numpy().astype(np.uint8)
+  original_image_np = original_image
   detected_classes = 0
   for obj in results:
     # Convert the object bounding box from relative coordinates to absolute 
